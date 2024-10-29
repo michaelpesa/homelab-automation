@@ -1,0 +1,456 @@
+---
+# Source: synology-csi/templates/controller.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: controller.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-controller
+---
+# Source: synology-csi/templates/node.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: node.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-node
+---
+# Source: synology-csi/templates/controller.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: controller.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-controller
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "events" ]
+    verbs: [ "get", "list", "watch", "create", "update", "patch" ]
+  - apiGroups: [ "" ]
+    resources: [ "persistentvolumeclaims" ]
+    verbs: [ "get", "list", "watch", "update", "patch" ]
+  - apiGroups: [ "" ]
+    resources: [ "persistentvolumeclaims/status" ]
+    verbs: [ "get", "list", "watch", "update", "patch" ]
+  - apiGroups: [ "" ]
+    resources: [ "persistentvolumes" ]
+    verbs: [ "get", "list", "watch", "create", "update", "patch", "delete" ]
+  - apiGroups: [ "" ]
+    resources: [ "nodes", "pods" ]
+    verbs: [ "get", "list", "watch" ]
+  - apiGroups: [ "storage.k8s.io" ]
+    resources: [ "csinodes" ]
+    verbs: [ "get", "list", "watch" ]
+  - apiGroups: [ "csi.storage.k8s.io" ]
+    resources: [ "csinodeinfos" ]
+    verbs: [ "get", "list", "watch" ]
+  - apiGroups: [ "storage.k8s.io" ]
+    resources: [ "volumeattachments", "volumeattachments/status" ]
+    verbs: [ "get", "list", "watch", "update", "patch" ]
+  - apiGroups: [ "storage.k8s.io" ]
+    resources: [ "storageclasses" ]
+    verbs: [ "get", "list", "watch" ]
+  - apiGroups: [ "snapshot.storage.k8s.io" ]
+    resources: [ "volumesnapshots" ]
+    verbs: [ "get", "list" ]
+  - apiGroups: [ "snapshot.storage.k8s.io" ]
+    resources: [ "volumesnapshotcontents" ]
+    verbs: [ "get", "list" ]
+  - apiGroups: [""]
+    resources: [ "secrets" ]
+    verbs: [ "get" ]
+---
+# Source: synology-csi/templates/node.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: node.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-node
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "secrets" ]
+    verbs: [ "get", "list" ]
+  - apiGroups: [ "" ]
+    resources: [ "nodes" ]
+    verbs: [ "get", "list", "update" ]
+  - apiGroups: [ "" ]
+    resources: [ "namespaces" ]
+    verbs: [ "get", "list" ]
+  - apiGroups: [ "" ]
+    resources: [ "persistentvolumes" ]
+    verbs: [ "get", "list", "watch", "update" ]
+  - apiGroups: [ "storage.k8s.io" ]
+    resources: [ "volumeattachments" ]
+    verbs: [ "get", "list", "watch", "update" ]
+---
+# Source: synology-csi/templates/controller.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: controller.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-controller
+subjects:
+  - kind: ServiceAccount
+    name: release-name-synology-csi-controller
+    namespace: synology-csi
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: release-name-synology-csi-controller
+---
+# Source: synology-csi/templates/node.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: node.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-node
+subjects:
+  - kind: ServiceAccount
+    name: release-name-synology-csi-node
+    namespace: synology-csi
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: release-name-synology-csi-node
+---
+# Source: synology-csi/templates/node.yaml
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: node
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: node.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-node
+spec:
+  selector:
+    matchLabels:
+      app: node
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/name: synology-csi
+      helm.sh/template: node.yaml
+  template:
+    metadata:
+      labels:
+        app: node
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/name: synology-csi
+        helm.sh/template: node.yaml
+    spec:
+      hostPID: true
+      containers:
+        - name: node-driver-registrar
+          args:
+            - --csi-address=$(ADDRESS)
+            - --kubelet-registration-path=$(REGISTRATION_PATH)
+            - --v=5
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: REGISTRATION_PATH
+              value: /var/lib/kubelet/plugins/csi.san.synology.com/csi.sock
+          image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.6.3
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            - name: registration-dir
+              mountPath: /registration
+        - name: csi-plugin
+          args:
+            - --client-info=/etc/synology/client-info.yml
+            - --endpoint=$(CSI_ENDPOINT)
+            - --log-level=info
+            - --nodeid=$(KUBE_NODE_NAME)
+          env:
+            - name: CSI_ENDPOINT
+              value: unix://csi/csi.sock
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          image: ghcr.io/zebernst/synology-csi:v1.1.3
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: client-info
+              mountPath: /etc/synology
+              readOnly: true
+            - name: device-dir
+              mountPath: /dev
+            - name: host-root
+              mountPath: /host
+            - name: kubelet-dir
+              mountPath: /var/lib/kubelet
+              mountPropagation: Bidirectional
+            - name: plugin-dir
+              mountPath: /csi
+      hostNetwork: true
+      serviceAccountName: release-name-synology-csi-node
+      volumes:
+        - 
+          name: client-info
+          secret:
+            secretName: client-info-secret
+        - name: device-dir
+          hostPath:
+            path: /dev
+            type: Directory
+        - name: host-root
+          hostPath:
+            path: /
+            type: Directory
+        - name: kubelet-dir
+          hostPath:
+            path: /var/lib/kubelet
+            type: Directory
+        - name: plugin-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/csi.san.synology.com
+            type: DirectoryOrCreate
+        - name: registration-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins_registry
+            type: Directory
+---
+# Source: synology-csi/templates/controller.yaml
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: controller
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: controller.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-controller
+spec:
+  selector:
+    matchLabels:
+      app: controller
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/name: synology-csi
+      helm.sh/template: controller.yaml
+  serviceName: release-name-synology-csi-controller
+  template:
+    metadata:
+      labels:
+        app: controller
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/name: synology-csi
+        helm.sh/template: controller.yaml
+    spec:
+      containers:
+        - name: csi-provisioner
+          args:
+            - --csi-address=$(ADDRESS)
+            - --timeout=60s
+            - --v=5
+            - --extra-create-metadata
+          env:
+            - name: ADDRESS
+              value: /var/lib/csi/sockets/pluginproxy/csi.sock
+          image: registry.k8s.io/sig-storage/csi-provisioner:v3.4.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities:
+              add: [ "SYS_ADMIN" ]
+            privileged: true
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/pluginproxy
+        - name: csi-attacher
+          args:
+            - --csi-address=$(ADDRESS)
+            - --v=5
+          env:
+            - name: ADDRESS
+              value: /var/lib/csi/sockets/pluginproxy/csi.sock
+          image: registry.k8s.io/sig-storage/csi-attacher:v4.2.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities:
+              add: [ "SYS_ADMIN" ]
+            privileged: true
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/pluginproxy
+        - name: csi-resizer
+          args:
+            - --csi-address=$(ADDRESS)
+            - --v=5
+          env:
+            - name: ADDRESS
+              value: /var/lib/csi/sockets/pluginproxy/csi.sock
+          image: registry.k8s.io/sig-storage/csi-resizer:v1.7.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities:
+              add: [ "SYS_ADMIN" ]
+            privileged: true
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/pluginproxy
+        - name: csi-plugin
+          args:
+            - --client-info=/etc/synology/client-info.yml
+            - --endpoint=$(CSI_ENDPOINT)
+            - --log-level=info
+            - --nodeid=NotUsed
+          env:
+            - name: CSI_ENDPOINT
+              value: unix:///var/lib/csi/sockets/pluginproxy/csi.sock
+          image: ghcr.io/zebernst/synology-csi:v1.1.3
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities:
+              add: [ "SYS_ADMIN" ]
+            privileged: true
+          volumeMounts:
+            - name: client-info
+              mountPath: /etc/synology
+              readOnly: true
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/pluginproxy
+      hostNetwork: true
+      serviceAccountName: release-name-synology-csi-controller
+      volumes:
+        - 
+          name: client-info
+          secret:
+            secretName: client-info-secret
+        - name: socket-dir
+          emptyDir: { }
+---
+# Source: synology-csi/templates/csidriver.yaml
+apiVersion: storage.k8s.io/v1
+kind: CSIDriver
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: csidriver.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: csi.san.synology.com
+spec:
+  attachRequired: true # Indicates the driver requires an attach operation (TODO: ControllerPublishVolume should be implemented)
+  podInfoOnMount: true
+  volumeLifecycleModes:
+    - Persistent
+---
+# Source: synology-csi/templates/test.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: hook-succeeded
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: test.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: synology-iscsi-storage-delete
+  resources:
+    requests:
+      storage: 1Gi
+---
+# Source: synology-csi/templates/test.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: hook-succeeded
+  labels:
+    app: test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "v1.1.3"
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: synology-csi
+    helm.sh/template: test.yaml
+    helm.sh/chart: synology-csi-0.9.4
+  name: release-name-synology-csi-test
+spec:
+  template:
+    metadata:
+      labels:
+        app: test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "v1.1.3"
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/name: synology-csi
+        helm.sh/template: test.yaml
+        helm.sh/chart: synology-csi-0.9.4
+      name: release-name-synology-csi-test
+    spec:
+      containers:
+        - name: touch
+          command: [ "/bin/sh", "-c", "echo 'Hello world!' >/data/file" ]
+          image: busybox
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      restartPolicy: Never
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: release-name-synology-csi-test
