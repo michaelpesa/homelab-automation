@@ -1,0 +1,21 @@
+machine:
+    kubelet:
+        extraArgs:
+            rotate-server-certificates: true
+    network:
+        interfaces:
+            - deviceSelector:
+                  physical: true
+              dhcp: true
+    install:
+        extraKernelArgs:
+            - talos.platform=metal
+            - reboot=k
+    nodeLabels:
+        bgp: true
+
+cluster:
+    network:
+        cni:
+            name: none
+    allowSchedulingOnControlPlanes: true

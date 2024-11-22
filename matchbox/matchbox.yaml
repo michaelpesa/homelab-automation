@@ -1,0 +1,83 @@
+---
+- name: Deploy Matchbox
+  hosts: all
+  become: yes
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Download Matchbox
+      ansible.builtin.get_url:
+        url: "https://github.com/poseidon/matchbox/releases/download/{{ matchbox_version }}/matchbox-{{ matchbox_version }}-linux-{{ matchbox_arch }}.tar.gz"
+        dest: "/tmp/matchbox.tar.gz"
+        mode: "0644"
+
+    - name: Download Matchbox signature
+      ansible.builtin.get_url:
+        url: "https://github.com/poseidon/matchbox/releases/download/{{ matchbox_version }}/matchbox-{{ matchbox_version }}-linux-{{ matchbox_arch }}.tar.gz.asc"
+        dest: "/tmp/matchbox.tar.gz.asc"
+        mode: "0644"
+
+    - name: Extract Matchbox binary
+      ansible.builtin.unarchive:
+        src: "/tmp/matchbox.tar.gz"
+        dest: "/opt/matchbox"
+        remote_src: yes
+
+    - name: Move Matchbox binary to /usr/local/bin
+      ansible.builtin.copy:
+        src: "/opt/matchbox/matchbox"
+        dest: "/usr/local/bin/matchbox"
+        mode: "0755"
+
+    - name: Create Matchbox user and group
+      ansible.builtin.user:
+        name: "matchbox"
+        system: yes
+        create_home: no
+
+    - name: Set up directories for Matchbox
+      ansible.builtin.file:
+        state: directory
+        owner: "matchbox"
+        group: "matchbox"
+        mode: "0755"
+      with_items:
+        - "/etc/systemd/system/matchbox.service.d"
+        - "/etc/matchbox"
+        - "/var/lib/matchbox"
+        - "/var/lib/matchbox/assets"
+
+    - name: Copy systemd service file
+      ansible.builtin.copy:
+        src: "/opt/matchbox/contrib/systemd/matchbox.service"
+        dest: "/etc/systemd/system/matchbox.service"
+        mode: "0644"
+
+    - name: Configure systemd environment
+      ansible.builtin.lineinfile:
+        path: "/etc/systemd/system/matchbox.service.d/override.conf"
+        create: yes
+        line: "{{ item }}"
+      loop:
+        - "[Service]"
+        - "Environment=\"MATCHBOX_ADDRESS=0.0.0.0:8080\""
+        - "Environment=\"MATCHBOX_RPC_ADDRESS=0.0.0.0:8081\""
+        - "Environment=\"MATCHBOX_LOG_LEVEL=debug\""
+
+    - name: Reload and start Matchbox service
+      ansible.builtin.systemd:
+        name: matchbox
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Download Talos initramfs and vmlinuz files
+      ansible.builtin.get_url:
+        url: "https://github.com/siderolabs/talos/releases/download/{{ talos_version }}/{{ item }}-{{ talos_arch }}"
+        dest: "/var/lib/matchbox/assets/{{ item }}"
+        mode: "0644"
+      loop:
+        - initramfs
+        - vmlinuz
+
