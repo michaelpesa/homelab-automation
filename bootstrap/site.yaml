@@ -1,0 +1,7 @@
+---
+- name: Configure bootstrap server
+  hosts: bootstrap
+  become: true
+  roles:
+    - matchbox
+    - systemd_units

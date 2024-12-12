@@ -1,0 +1,15 @@
+[Unit]
+Description=Plex Media Server
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/podman rm --force plex
+ExecStart=/usr/bin/podman run --name plex --pull always --network host -e TZ=America/Phoneix --device /dev/dri:/dev/dri -v plex_config:/config -v plex_transcode:/transcode -v /media/plex_data:/data docker.io/plexinc/pms-docker:latest
+ExecStop=/usr/bin/podman stop plex
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

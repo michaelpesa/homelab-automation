@@ -1,0 +1,20 @@
+[Unit]
+Description=HAProxy for Talos
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/podman rm --force haproxy
+ExecStart=/usr/bin/podman run \
+    --name haproxy \
+    --pull always \
+    --network host  \
+    -v /etc/haproxy:/etc/haproxy:Z \
+    cgr.dev/chainguard/haproxy -f /etc/haproxy/haproxy.cfg
+ExecStop=/usr/bin/podman stop haproxy
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

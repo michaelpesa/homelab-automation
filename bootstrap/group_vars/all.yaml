@@ -1,0 +1,10 @@
+---
+services:
+  - dnsmasq
+  - matchbox
+  - haproxy
+  - plex
+
+talos_arch: 'amd64'
+talos_version: 'v1.8.3'
+talos_endpoint: 'https://talos.home.lab:6443'

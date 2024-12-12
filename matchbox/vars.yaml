@@ -1,6 +1,0 @@
-# In my homelab, the Talos nodes are generic amd64 servers, and the
-# matchbox server is a Raspberry Pi 3.
-talos_arch: "amd64"
-talos_version: "v1.8.3"
-matchbox_arch: "arm64"
-matchbox_version: "v0.10.0"

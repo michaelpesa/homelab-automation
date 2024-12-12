@@ -1,0 +1,23 @@
+[Unit]
+Description=matchbox
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/podman rm --force matchbox
+ExecStart=/usr/bin/podman run \
+    --name matchbox \
+    --network host \
+    --pull always \
+    -v /var/lib/matchbox:/var/lib/matchbox:Z \
+    -v /etc/matchbox:/etc/matchbox:Z,ro \
+    quay.io/poseidon/matchbox:v0.10.0 \
+    -address=0.0.0.0:8080 \
+    -rpc-address=0.0.0.0:8081
+ExecStop=/usr/bin/podman stop matchbox
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

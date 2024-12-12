@@ -1,0 +1,22 @@
+{
+    "id": "talos",
+    "name": "Talos Linux",
+    "boot": {
+        "kernel": "/assets/talos/vmlinuz",
+        "initrd": [
+            "/assets/talos/initramfs.xz"
+        ],
+        "args": [
+            "initrd=initramfs.xz",
+            "init_on_alloc=1",
+            "init_on_free=1",
+            "slab_nomerge",
+            "pti=on",
+            "console=tty0",
+            "console=ttyS0",
+            "printk.devkmsg=on",
+            "talos.platform=metal",
+            "talos.config=http://matchbox.home.lab:8080/assets/talos/controlplane.yaml"
+        ]
+    }
+}

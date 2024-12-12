@@ -1,0 +1,39 @@
+[Unit]
+Description=dnsmasq
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/podman rm --force dnsmasq
+ExecStart=/usr/bin/podman run \
+    --name dnsmasq \
+    --cap-add=NET_ADMIN \
+    --cap-add=NET_RAW \
+    --net=host \
+    quay.io/poseidon/dnsmasq:v0.5.0-38-ga731ddd -d -q \
+    --dhcp-range=192.168.88.21,192.168.88.250,255.255.255.0,6h \
+    --enable-tftp --tftp-root=/var/lib/tftpboot \
+    --dhcp-match=set:bios,option:client-arch,0 \
+    --dhcp-boot=tag:bios,undionly.kpxe \
+    --dhcp-match=set:efi32,option:client-arch,6 \
+    --dhcp-boot=tag:efi32,ipxe.efi \
+    --dhcp-match=set:efibc,option:client-arch,7 \
+    --dhcp-boot=tag:efibc,ipxe.efi \
+    --dhcp-match=set:efi64,option:client-arch,9 \
+    --dhcp-boot=tag:efi64,ipxe.efi \
+    --dhcp-userclass=set:ipxe,iPXE \
+    --dhcp-boot=tag:ipxe,http://matchbox.home.lab:8080/boot.ipxe \
+    --dhcp-option=3,192.168.88.1 \
+    --dhcp-option=6,192.168.88.1 \
+    --dhcp-host=00:23:24:d7:c3:dc,192.168.88.24 \
+    --dhcp-host=6c:0b:84:e0:c4:c1,192.168.88.147 \
+    --dhcp-host=00:23:24:d7:c4:85,192.168.88.216 \
+    --log-queries \
+    --log-dhcp
+ExecStop=/usr/bin/podman stop dnsmasq
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
