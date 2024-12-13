@@ -4,7 +4,7 @@
     src: '{{ item }}.service'
     dest: '/etc/systemd/system/{{ item }}.service'
     mode: '0644'
-  loop: '{{ services }}'
+  loop: '{{ systemd_services }}'
 
 - name: Reload systemd daemon
   ansible.builtin.systemd_service:
@@ -15,4 +15,4 @@
     name: '{{ item }}'
     state: started
     enabled: true
-  loop: '{{ services }}'
+  loop: '{{ systemd_services }}'

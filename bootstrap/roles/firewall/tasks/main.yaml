@@ -1,0 +1,16 @@
+---
+- name: Persistently expose services through firewall
+  ansible.posix.firewalld:
+    service: '{{ item }}'
+    state: enabled
+    permanent: true
+    immediate: true
+  loop: '{{ firewall_services }}'
+
+- name: Persistently expose ports through firewall
+  ansible.posix.firewalld:
+    port: '{{ item }}'
+    state: enabled
+    permanent: true
+    immediate: true
+  loop: '{{ firewall_ports }}'

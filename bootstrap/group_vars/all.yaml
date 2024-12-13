@@ -1,10 +1,21 @@
 ---
-services:
+systemd_services:
   - dnsmasq
   - matchbox
   - haproxy
   - plex
 
+# firewalld services and ports
+firewall_services:
+  - dhcp
+  - tftp
+firewall_ports:
+  - '6443/tcp'  # HAProxy
+  - '8080/tcp'  # matchbox
+  - '8081/tcp'  # matchbox
+  - '32400/tcp' # Plex
+
+# Talos cluster parameters
 talos_arch: 'amd64'
 talos_version: 'v1.8.3'
 talos_endpoint: 'https://talos.home.lab:6443'
